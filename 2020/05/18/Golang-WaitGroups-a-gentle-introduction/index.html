@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="Golang WaitGroups - a gentle introductionSo it’s been a month since i’ve last posted and I’ve learnt a few more things about go concurrency and I realised my ‘Simple Go Concurrency I’ really was a hea">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Golang WaitGroups - a gentle introduction">
+<meta property="og:url" content="http://yoursite.com/2020/05/18/Golang-WaitGroups-a-gentle-introduction/index.html">
+<meta property="og:site_name" content="Emily Ha">
+<meta property="og:description" content="Golang WaitGroups - a gentle introductionSo it’s been a month since i’ve last posted and I’ve learnt a few more things about go concurrency and I realised my ‘Simple Go Concurrency I’ really was a hea">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-05-18T11:30:21.000Z">
+<meta property="article:modified_time" content="2020-05-18T12:04:25.376Z">
+<meta property="article:author" content="Emily Ha">
+<meta name="twitter:card" content="summary">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Golang WaitGroups - a gentle introduction</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2020/04/19/Simple-Go-Concurrency-I-passing-structs-to-channels/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/05/18/Golang-WaitGroups-a-gentle-introduction/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/05/18/Golang-WaitGroups-a-gentle-introduction/&text=Golang WaitGroups - a gentle introduction" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/05/18/Golang-WaitGroups-a-gentle-introduction/&title=Golang WaitGroups - a gentle introduction" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/05/18/Golang-WaitGroups-a-gentle-introduction/&is_video=false&description=Golang WaitGroups - a gentle introduction" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Golang WaitGroups - a gentle introduction&body=Check out this article: http://yoursite.com/2020/05/18/Golang-WaitGroups-a-gentle-introduction/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/05/18/Golang-WaitGroups-a-gentle-introduction/&title=Golang WaitGroups - a gentle introduction" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/05/18/Golang-WaitGroups-a-gentle-introduction/&title=Golang WaitGroups - a gentle introduction" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/05/18/Golang-WaitGroups-a-gentle-introduction/&title=Golang WaitGroups - a gentle introduction" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/05/18/Golang-WaitGroups-a-gentle-introduction/&title=Golang WaitGroups - a gentle introduction" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/05/18/Golang-WaitGroups-a-gentle-introduction/&name=Golang WaitGroups - a gentle introduction&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/05/18/Golang-WaitGroups-a-gentle-introduction/&t=Golang WaitGroups - a gentle introduction" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Golang-WaitGroups-a-gentle-introduction"><span class="toc-number">1.</span> <span class="toc-text">Golang WaitGroups - a gentle introduction</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Simple-example-to-demonstrate-with-no-WaitGroups"><span class="toc-number">1.1.</span> <span class="toc-text">Simple example to demonstrate with no WaitGroups:</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Simple-example-to-demonstrate-WaitGroups"><span class="toc-number">1.2.</span> <span class="toc-text">Simple example to demonstrate WaitGroups:</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Golang WaitGroups - a gentle introduction
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Emily Ha</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-05-18T11:30:21.000Z" itemprop="datePublished">18-05-2020</time>
+        
+      
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="Golang-WaitGroups-a-gentle-introduction"><a href="#Golang-WaitGroups-a-gentle-introduction" class="headerlink" title="Golang WaitGroups - a gentle introduction"></a>Golang WaitGroups - a gentle introduction</h2><p>So it’s been a month since i’ve last posted and I’ve learnt a few more things about go concurrency and I realised my ‘Simple Go Concurrency I’ really was a heavy post that skipped on some essential basics. So here is my patch to start all over again to go through the very basics of concurrency in go. </p>
+<p>First you should read this definition from Effective Go about Goroutines: <a href="https://golang.org/doc/effective_go.html#goroutines" target="_blank" rel="noopener">https://golang.org/doc/effective_go.html#goroutines</a> </p>
+<p>Next we want to know what WaitGroups means.<br>Official documentation for package sync’s WaitGroups: <a href="https://golang.org/pkg/sync/#WaitGroup" target="_blank" rel="noopener">https://golang.org/pkg/sync/#WaitGroup</a></p>
+<p>You can see there are only 3 functions that WaitGroups have:</p>
+<ol>
+<li>Add()</li>
+<li>Done()</li>
+<li>Wait()</li>
+</ol>
+<p>The main goroutine calls Add() to declare how many goroutines we want to wait for. A WaitGroup will wait for multiple goroutines to finish when Wait() is invoked and will block until all goroutines have finished. Then inside the goroutines, they’ll execute their code and finally, call Done() to signal to the WaitGroup it has completed it’s job. </p>
+<p>When you call Add(), imagine you are incrementing the WaitGroup by 1 and by calling Done() you are decrementing the WaitGroup by 1, and when the WaitGroup reaches 0, there is nothing else to wait for and the concurrent execution is done. </p>
+<h3 id="Simple-example-to-demonstrate-with-no-WaitGroups"><a href="#Simple-example-to-demonstrate-with-no-WaitGroups" class="headerlink" title="Simple example to demonstrate with no WaitGroups:"></a>Simple example to demonstrate with no WaitGroups:</h3><p><a href="https://play.golang.org/p/NyUyWHSxpbr" target="_blank" rel="noopener">https://play.golang.org/p/NyUyWHSxpbr</a></p>
+<p>Let’s try to print foo() and bar () 10x each whilst using a goroutine on foo(). Remember to run function concurrently you just need to add the keyword ‘go’ infront of it. </p>
+<figure class="highlight golang"><figcaption><span>No WaitGroups</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"fmt"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">go</span> foo()</span><br><span class="line">	bar()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">foo</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">		fmt.Println(<span class="string">"foo:"</span>, i)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">bar</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">		fmt.Println(<span class="string">"bar:"</span>, i)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>Result</p>
+<figure class="highlight golang"><figcaption><span>Result</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">bar: <span class="number">0</span></span><br><span class="line">bar: <span class="number">1</span></span><br><span class="line">bar: <span class="number">2</span></span><br><span class="line">bar: <span class="number">3</span></span><br><span class="line">bar: <span class="number">4</span></span><br><span class="line">bar: <span class="number">5</span></span><br><span class="line">bar: <span class="number">6</span></span><br><span class="line">bar: <span class="number">7</span></span><br><span class="line">bar: <span class="number">8</span></span><br><span class="line">bar: <span class="number">9</span></span><br><span class="line"></span><br><span class="line">Program exited.</span><br></pre></td></tr></table></figure>
+
+<p>This result isn’t what we expected. foo() was executed by goroutines but it didn’t print anything and the program exited! Now why is that? That is because ‘main’ is also a goroutine and once main is done, it will exit the program. In this case, main() had executed and completed all it’s task whilst it fired away go foo() but had finished before foo() had finished executing, so foo()’s results are missing. This is why we need WaitGroups to save the day, so the main goroutine knows to wait for all goroutines before it terminates the program. </p>
+<h3 id="Simple-example-to-demonstrate-WaitGroups"><a href="#Simple-example-to-demonstrate-WaitGroups" class="headerlink" title="Simple example to demonstrate WaitGroups:"></a>Simple example to demonstrate WaitGroups:</h3><p><a href="https://play.golang.org/p/6MhhwYYi_5A" target="_blank" rel="noopener">https://play.golang.org/p/6MhhwYYi_5A</a></p>
+<figure class="highlight golang"><figcaption><span>WaitGroups</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"fmt"</span></span><br><span class="line">	<span class="string">"sync"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// package scoped wg</span></span><br><span class="line"><span class="keyword">var</span> wg sync.WaitGroup</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// add one to the waitgroup </span></span><br><span class="line">	wg.Add(<span class="number">1</span>)</span><br><span class="line">	<span class="keyword">go</span> foo()</span><br><span class="line">	bar()</span><br><span class="line"></span><br><span class="line">	wg.Wait()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">foo</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">		fmt.Println(<span class="string">"foo:"</span>, i)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// decrement the waitgroup by one</span></span><br><span class="line">	wg.Done()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">bar</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">		fmt.Println(<span class="string">"bar:"</span>, i)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>Result</p>
+<figure class="highlight golang"><figcaption><span>Result</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">bar: <span class="number">0</span></span><br><span class="line">bar: <span class="number">1</span></span><br><span class="line">bar: <span class="number">2</span></span><br><span class="line">bar: <span class="number">3</span></span><br><span class="line">bar: <span class="number">4</span></span><br><span class="line">bar: <span class="number">5</span></span><br><span class="line">bar: <span class="number">6</span></span><br><span class="line">bar: <span class="number">7</span></span><br><span class="line">bar: <span class="number">8</span></span><br><span class="line">bar: <span class="number">9</span></span><br><span class="line">foo: <span class="number">0</span></span><br><span class="line">foo: <span class="number">1</span></span><br><span class="line">foo: <span class="number">2</span></span><br><span class="line">foo: <span class="number">3</span></span><br><span class="line">foo: <span class="number">4</span></span><br><span class="line">foo: <span class="number">5</span></span><br><span class="line">foo: <span class="number">6</span></span><br><span class="line">foo: <span class="number">7</span></span><br><span class="line">foo: <span class="number">8</span></span><br><span class="line">foo: <span class="number">9</span></span><br><span class="line"></span><br><span class="line">Program exited.</span><br></pre></td></tr></table></figure>
+
+<p>This is the result we wanted to see. WaitGroup is firstly declared as a package scoped variable so everything within the package can access it. In the main goroutine you will use Add() and pass in an integer as the number of goroutines you want to wait for. Execute a function concurrently such as <code>go foo()</code>. Also in the main function, you need to ask the WaitGroup to Wait() for all goroutines to finish. Within the function that you want to run concurrently, to tell the WaitGroup you are finished, you need to trigger Done() and decrement the WaitGroup’s internal counter by 1. Main goroutine will continue to wait and not terminate the program until it’s counter is reduced to 0. </p>
+<p>Well that’s it! I hope this was much clearer than the Pokemon example. </p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Golang-WaitGroups-a-gentle-introduction"><span class="toc-number">1.</span> <span class="toc-text">Golang WaitGroups - a gentle introduction</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Simple-example-to-demonstrate-with-no-WaitGroups"><span class="toc-number">1.1.</span> <span class="toc-text">Simple example to demonstrate with no WaitGroups:</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Simple-example-to-demonstrate-WaitGroups"><span class="toc-number">1.2.</span> <span class="toc-text">Simple example to demonstrate WaitGroups:</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2020/05/18/Golang-WaitGroups-a-gentle-introduction/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2020/05/18/Golang-WaitGroups-a-gentle-introduction/&text=Golang WaitGroups - a gentle introduction" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2020/05/18/Golang-WaitGroups-a-gentle-introduction/&title=Golang WaitGroups - a gentle introduction" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2020/05/18/Golang-WaitGroups-a-gentle-introduction/&is_video=false&description=Golang WaitGroups - a gentle introduction" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Golang WaitGroups - a gentle introduction&body=Check out this article: http://yoursite.com/2020/05/18/Golang-WaitGroups-a-gentle-introduction/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2020/05/18/Golang-WaitGroups-a-gentle-introduction/&title=Golang WaitGroups - a gentle introduction" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2020/05/18/Golang-WaitGroups-a-gentle-introduction/&title=Golang WaitGroups - a gentle introduction" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2020/05/18/Golang-WaitGroups-a-gentle-introduction/&title=Golang WaitGroups - a gentle introduction" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2020/05/18/Golang-WaitGroups-a-gentle-introduction/&title=Golang WaitGroups - a gentle introduction" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2020/05/18/Golang-WaitGroups-a-gentle-introduction/&name=Golang WaitGroups - a gentle introduction&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=http://yoursite.com/2020/05/18/Golang-WaitGroups-a-gentle-introduction/&t=Golang WaitGroups - a gentle introduction" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2020
+    Emily Ha
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>
